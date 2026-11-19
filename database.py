@@ -1,3 +1,4 @@
+
 import mysql.connector
 from mysql.connector import Error
 import os
@@ -8,12 +9,19 @@ load_dotenv()
 def get_db_connection():
     try:
         connection = mysql.connector.connect(
-            host=os.getenv("DB_HOST"),
-            user=os.getenv("DB_USER"),
-            password=os.getenv("DB_PASSWORD"),
-            database=os.getenv("DB_NAME")
+            host=os.getenv("DB_HOST") or os.getenv("MYSQLHOST"),
+            port=int(os.getenv("DB_PORT") or os.getenv("MYSQLPORT", "3306")),
+            user=os.getenv("DB_USER") or os.getenv("MYSQLUSER"),
+            password=os.getenv("DB_PASSWORD") or os.getenv("MYSQLPASSWORD"),
+            database=(
+                os.getenv("DB_NAME")
+                or os.getenv("MYSQLDATABASE")
+                or os.getenv("MYSQL_DATABASE")
+            ),
+            connection_timeout=10
         )
         return connection
+
     except Error as e:
         print(f"Database connection error: {e}")
         return None
