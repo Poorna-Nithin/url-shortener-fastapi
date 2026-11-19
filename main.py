@@ -1,6 +1,7 @@
 import logging
 import random
 import string
+import os
 from fastapi import FastAPI, Depends, HTTPException, Request, status
 from fastapi.responses import RedirectResponse
 from fastapi.security import OAuth2PasswordRequestForm
@@ -89,7 +90,15 @@ def create_short_link(url_data: URLCreate, user_id: int = Depends(get_current_us
     conn.close()
 
     logging.info(f"User {user_id} created short code: {short_code}")
-    return {"short_code": short_code, "short_url": f"http://127.0.0.1:8000/{short_code}"}
+    PUBLIC_BASE_URL = os.getenv(
+        "PUBLIC_BASE_URL",
+        "http://127.0.0.1:8000"
+    ).rstrip("/")
+
+    return {
+        "short_code": short_code,
+        "short_url": f"{PUBLIC_BASE_URL}/{short_code}"
+    }
 
 @app.get("/links")
 def get_my_links(user_id: int = Depends(get_current_user_id)):
